@@ -5,19 +5,15 @@ let interval = (() => {
     let world = document.querySelector('#world');
     world.setAttribute('width', WIDTH);
     world.setAttribute('height', HEIGHT);
+    let context = world.getContext('2d');
     class Cell {
         constructor(x, y) {
+            this._color = `rgba(${Cell.randclr()},${Cell.randclr()},${Cell.randclr()},1)`;
+            this._x = x;
+            this._y = y;
             this._isAlive = null;
             this._willLive = null;
             this._neighbors = [];
-            this._element = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            this._element.setAttribute(
-                'style',
-                `fill:rgba(${Cell.randclr()},${Cell.randclr()},${Cell.randclr()},1)`
-            );
-            this._element.setAttribute('x', x);
-            this._element.setAttribute('y', y);
-            world.appendChild(this._element);
             this.isAlive = (Math.trunc(Math.random() * 10) % 2 === 0);
         }
         get isAlive() {
@@ -25,7 +21,10 @@ let interval = (() => {
         }
         set isAlive(a) {
             this._isAlive = a;
-            this._element.setAttribute('opacity', a ? '1' : '0');
+            if (this._isAlive) {
+                context.fillStyle = this._color;
+                context.fillRect(this._x, this._y, Cell.width, Cell.height);
+            }
         }
         set neighbors(n) {
             this._neighbors = n;
@@ -41,6 +40,18 @@ let interval = (() => {
         execute() {
             this.isAlive = this._willLive;
         }
+        static set width(w) {
+            Cell._width = w;
+        }
+        static get width() {
+            return Cell._width;
+        }
+        static set height(h) {
+            Cell._height = h;
+        }
+        static get height() {
+            return Cell._height;
+        }
         static randclr() {
             return Math.trunc(Math.random() * 255);
         }
@@ -48,12 +59,8 @@ let interval = (() => {
     class Population {
         constructor(worldWidth, worldHeight, nbRows = 10, nbColumns = 10) {
             // Define cell dimensions:
-            let cellWidth = worldWidth / nbColumns;
-            let cellHeight = worldHeight / nbRows;
-            document.styleSheets[0].insertRule(`#world rect {
-                width: ${cellWidth}px;
-                height: ${cellHeight}px;
-            }`);
+            Cell.width = worldWidth / nbColumns;
+            Cell.height = worldHeight / nbRows;
             // Spawn cells in list:
             this._rows = [];
             while (this._rows.length < nbRows) {
@@ -61,8 +68,8 @@ let interval = (() => {
             };
             for (const [row_index, row] of this._rows.entries()) {
                 for (const column_index of row.keys()) {
-                    const x = column_index * cellWidth;
-                    const y = row_index * cellHeight;
+                    const x = column_index * Cell.width;
+                    const y = row_index * Cell.height;
                     const cell = new Cell(x, y);
                     row[column_index] = cell;
                 };
@@ -88,6 +95,8 @@ let interval = (() => {
             };
         }
         evolve() {
+            context.fillStyle = 'white';
+            context.fillRect(0, 0, WIDTH, HEIGHT);
             for (const cell of this) {
                 cell.judge();
             };
