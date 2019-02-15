@@ -1,5 +1,5 @@
 'use strict';
-let interval = (() => {
+{
     const WIDTH = 800;
     const HEIGHT = 600;
     let world = document.querySelector('#world');
@@ -113,5 +113,5 @@ let interval = (() => {
         }
     }
     let population = new Population(WIDTH, HEIGHT, 50, 50);
-    return setInterval(() => {population.evolve();}, 100);
-})();
+    var interval = setInterval(() => {population.evolve()}, 100);
+}
