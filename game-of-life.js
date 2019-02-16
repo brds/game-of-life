@@ -11,7 +11,7 @@ const { playPause, randomize } = (() => {
             this._isAlive = null;
             this._willLive = null;
             this._neighbors = [];
-            this.isAlive = (Math.trunc(Math.random() * 10) % 2 === 0);
+            this.randomize();
         }
         get isAlive() {
             return this._isAlive;
@@ -37,16 +37,19 @@ const { playPause, randomize } = (() => {
         execute() {
             this.isAlive = this._willLive;
         }
+        randomize() {
+            this.isAlive = (Math.round(Math.random()) % 2 === 0);
+        }
         static randclr() {
             return Math.trunc(Math.random() * 255);
         }
     }
     class Population {
         constructor(worldWidth, worldHeight, worldContext, nbColumns, nbRows) {
-            // Define cells size:
+            // Define cells size.
             const cellWidth = worldWidth / nbColumns;
             const cellHeight = worldHeight / nbRows;
-            // Spawn cells in list:
+            // Spawn cells in list.
             this._rows = [];
             while (this._rows.length < nbRows) {
                 this._rows.push(new Array(nbColumns).fill(null));
@@ -59,7 +62,7 @@ const { playPause, randomize } = (() => {
                     row[column_index] = cell;
                 };
             };
-            // Set cells neighbors:
+            // Set cells neighbors.
             for (const [row_index, row] of this._rows.entries()) {
                 for (const [cell_index, cell] of row.entries()) {
                     const left_index = cell_index > 0 ? cell_index - 1 : row.length - 1;
@@ -111,6 +114,12 @@ const { playPause, randomize } = (() => {
             this._context.fillStyle = 'white';
             this._context.fillRect(0, 0, this._width, this._height);
         }
+        randomize() {
+            this.clear();
+            for (const cell of this._population) {
+                cell.randomize();
+            }
+        }
     }
     const WORLD_WIDTH = 800;
     const WORLD_HEIGHT = 600;
@@ -129,7 +138,7 @@ const { playPause, randomize } = (() => {
         playing = !playing;
     }
     var randomize = () => {
-        console.log('rand');
+        world.randomize();
     }
     playPause();
     return { 
