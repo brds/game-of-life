@@ -1,16 +1,13 @@
 'use strict';
-{
-    const WIDTH = 800;
-    const HEIGHT = 600;
-    let world = document.querySelector('#world');
-    world.setAttribute('width', WIDTH);
-    world.setAttribute('height', HEIGHT);
-    let context = world.getContext('2d');
+const { playPause, randomize } = (() => {
     class Cell {
-        constructor(x, y) {
-            this._color = `rgba(${Cell.randclr()},${Cell.randclr()},${Cell.randclr()},1)`;
+        constructor(x, y, width, height, context) {
             this._x = x;
             this._y = y;
+            this._width = width;
+            this._height = height;
+            this._context = context;
+            this._color = `rgba(${Cell.randclr()},${Cell.randclr()},${Cell.randclr()},1)`;
             this._isAlive = null;
             this._willLive = null;
             this._neighbors = [];
@@ -22,8 +19,8 @@
         set isAlive(a) {
             this._isAlive = a;
             if (this._isAlive) {
-                context.fillStyle = this._color;
-                context.fillRect(this._x, this._y, Cell.width, Cell.height);
+                this._context.fillStyle = this._color;
+                this._context.fillRect(this._x, this._y, this._width, this._height);
             }
         }
         set neighbors(n) {
@@ -40,27 +37,15 @@
         execute() {
             this.isAlive = this._willLive;
         }
-        static set width(w) {
-            Cell._width = w;
-        }
-        static get width() {
-            return Cell._width;
-        }
-        static set height(h) {
-            Cell._height = h;
-        }
-        static get height() {
-            return Cell._height;
-        }
         static randclr() {
             return Math.trunc(Math.random() * 255);
         }
     }
     class Population {
-        constructor(worldWidth, worldHeight, nbRows = 10, nbColumns = 10) {
-            // Define cell dimensions:
-            Cell.width = worldWidth / nbColumns;
-            Cell.height = worldHeight / nbRows;
+        constructor(worldWidth, worldHeight, worldContext, nbColumns, nbRows) {
+            // Define cells size:
+            const cellWidth = worldWidth / nbColumns;
+            const cellHeight = worldHeight / nbRows;
             // Spawn cells in list:
             this._rows = [];
             while (this._rows.length < nbRows) {
@@ -68,9 +53,9 @@
             };
             for (const [row_index, row] of this._rows.entries()) {
                 for (const column_index of row.keys()) {
-                    const x = column_index * Cell.width;
-                    const y = row_index * Cell.height;
-                    const cell = new Cell(x, y);
+                    const x = column_index * cellWidth;
+                    const y = row_index * cellHeight;
+                    const cell = new Cell(x, y, cellWidth, cellHeight, worldContext);
                     row[column_index] = cell;
                 };
             };
@@ -94,16 +79,6 @@
                 };
             };
         }
-        evolve() {
-            context.fillStyle = 'white';
-            context.fillRect(0, 0, WIDTH, HEIGHT);
-            for (const cell of this) {
-                cell.judge();
-            };
-            for (const cell of this) {
-                cell.execute();
-            };
-        }
         * [Symbol.iterator]() {
             for (const row of this._rows) {
                 for (const cell of row) {
@@ -112,6 +87,52 @@
             };
         }
     }
-    let population = new Population(WIDTH, HEIGHT, 50, 50);
-    var interval = setInterval(() => {population.evolve()}, 100);
-}
+    class World {
+        constructor(width, height, selector, nbColumns, nbRows) {
+            this._width = width;
+            this._height = height;
+            const canvas = document.querySelector(selector);
+            canvas.setAttribute('width', this._width);
+            canvas.setAttribute('height', this._height);
+            this._context = canvas.getContext('2d');
+            this._population = new Population(this._width, this._height, this._context, nbColumns, nbRows);
+        }
+        evolve() {
+            this._context.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            this._context.fillRect(0, 0, this._width, this._height);
+            for (const cell of this._population) {
+                cell.judge();
+            };
+            for (const cell of this._population) {
+                cell.execute();
+            };
+        }
+        clear() {
+            this._context.fillStyle = 'white';
+            this._context.fillRect(0, 0, this._width, this._height);
+        }
+    }
+    const WORLD_WIDTH = 800;
+    const WORLD_HEIGHT = 600;
+    const NB_COLUMNS = 60;
+    const NB_ROWS = 45;
+    let world = new World(WORLD_WIDTH, WORLD_HEIGHT, '#world', NB_COLUMNS, NB_ROWS);
+    let playing = false, interval = null;
+    var playPause = () => {
+        if (playing) {
+            clearInterval(interval);
+            world.clear();
+            world.evolve();
+        } else {
+            interval = setInterval(() => {world.evolve()}, 100);
+        }
+        playing = !playing;
+    }
+    var randomize = () => {
+        console.log('rand');
+    }
+    playPause();
+    return { 
+        playPause, randomize 
+    };
+})();
