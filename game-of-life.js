@@ -27,11 +27,12 @@ const { playPause, randomize } = (() => {
             this._neighbors = n;
         }
         judge() {
-            const nbNeighborsAlive = this._neighbors.filter(n => n.isAlive).length;
+            // Defines if the cell will live depending on how many of its neighbors are alive.
+            const nbAliveNeighbors = this._neighbors.filter(n => n.isAlive).length;
             if (this._isAlive) {
-                this._willLive = (nbNeighborsAlive === 2 || nbNeighborsAlive === 3);
+                this._willLive = (nbAliveNeighbors === 2 || nbAliveNeighbors === 3);
             } else {
-                this._willLive = (nbNeighborsAlive === 3);
+                this._willLive = (nbAliveNeighbors === 3);
             }
         }
         execute() {
@@ -49,7 +50,7 @@ const { playPause, randomize } = (() => {
             // Define cells size.
             const cellWidth = worldWidth / nbColumns;
             const cellHeight = worldHeight / nbRows;
-            // Spawn cells in list.
+            // Spawn new cells in list.
             this._rows = [];
             while (this._rows.length < nbRows) {
                 this._rows.push(new Array(nbColumns).fill(null));
@@ -118,16 +119,16 @@ const { playPause, randomize } = (() => {
             this.clear();
             for (const cell of this._population) {
                 cell.randomize();
-            }
+            };
         }
     }
     const WORLD_WIDTH = 800;
     const WORLD_HEIGHT = 600;
     const NB_COLUMNS = 80;
     const NB_ROWS = 60;
-    let world = new World(WORLD_WIDTH, WORLD_HEIGHT, '#world', NB_COLUMNS, NB_ROWS);
+    const world = new World(WORLD_WIDTH, WORLD_HEIGHT, '#world', NB_COLUMNS, NB_ROWS);
     let playing = false, interval = null;
-    var playPause = () => {
+    const playPause = () => {
         if (playing) {
             clearInterval(interval);
             world.clear();
@@ -137,10 +138,10 @@ const { playPause, randomize } = (() => {
         }
         playing = !playing;
         document.querySelector('#playPauseBtn').setAttribute('value', playing ? 'pause' : 'play');
-    }
-    var randomize = () => {
+    };
+    const randomize = () => {
         world.randomize();
-    }
+    };
     playPause();
     return { 
         playPause, randomize 
