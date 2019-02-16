@@ -27,7 +27,7 @@ const { playPause, randomize } = (() => {
             this._neighbors = n;
         }
         judge() {
-            const nbNeighborsAlive = this._neighbors.filter(n => n.isAlive === true).length;
+            const nbNeighborsAlive = this._neighbors.filter(n => n.isAlive).length;
             if (this._isAlive) {
                 this._willLive = (nbNeighborsAlive === 2 || nbNeighborsAlive === 3);
             } else {
@@ -123,8 +123,8 @@ const { playPause, randomize } = (() => {
     }
     const WORLD_WIDTH = 800;
     const WORLD_HEIGHT = 600;
-    const NB_COLUMNS = 60;
-    const NB_ROWS = 45;
+    const NB_COLUMNS = 80;
+    const NB_ROWS = 60;
     let world = new World(WORLD_WIDTH, WORLD_HEIGHT, '#world', NB_COLUMNS, NB_ROWS);
     let playing = false, interval = null;
     var playPause = () => {
@@ -136,6 +136,7 @@ const { playPause, randomize } = (() => {
             interval = setInterval(() => {world.evolve()}, 100);
         }
         playing = !playing;
+        document.querySelector('#playPauseBtn').setAttribute('value', playing ? 'pause' : 'play');
     }
     var randomize = () => {
         world.randomize();

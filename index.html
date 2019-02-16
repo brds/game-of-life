@@ -4,11 +4,11 @@
         <link rel="stylesheet" href="game-of-life.css">
     </head>
     <body>
-        <h1><a href="http://en.wikipedia.org/wiki/Conway's_Game_of_Life">game of life</a></h1>
+        <h1><a href="http://en.wikipedia.org/wiki/Conway's_Game_of_Life" target="_blank">game of life</a></h1>
         <canvas id="world"></canvas>
         <br />
-        <a href="javascript:playPause()">play/pause</a>
-        <a href="javascript:randomize()">randomize</a>
+        <input type="button" value="" onclick="playPause()" id="playPauseBtn" />
+        <input type="button" value="randomize" onclick="randomize()"/>
         <script src="game-of-life.js"></script>
     </body>
 </html>
